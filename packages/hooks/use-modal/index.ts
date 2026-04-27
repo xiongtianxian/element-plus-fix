@@ -10,6 +10,8 @@ type ModalInstance = {
 }
 
 const modalStack: ModalInstance[] = []
+let eventListenerAdded = false
+let stopEventListener: (() => void) | undefined
 
 const closeModal = (e: KeyboardEvent) => {
   if (modalStack.length === 0) return
@@ -21,14 +23,28 @@ const closeModal = (e: KeyboardEvent) => {
   }
 }
 
+const addEventListener = () => {
+  if (!eventListenerAdded && isClient) {
+    stopEventListener = useEventListener(document, 'keydown', closeModal)
+    eventListenerAdded = true
+  }
+}
+
+const removeEventListener = () => {
+  if (eventListenerAdded && modalStack.length === 0) {
+    stopEventListener?.()
+    eventListenerAdded = false
+  }
+}
+
 export const useModal = (instance: ModalInstance, visibleRef: Ref<boolean>) => {
   watch(visibleRef, (val) => {
     if (val) {
       modalStack.push(instance)
+      addEventListener()
     } else {
       modalStack.splice(modalStack.indexOf(instance), 1)
+      removeEventListener()
     }
   })
 }
-
-if (isClient) useEventListener(document, 'keydown', closeModal)

@@ -159,6 +159,7 @@ const mouseLeaveScrollbarHandler = () => {
 
 onBeforeUnmount(() => {
   restoreOnselectstart()
+  document.removeEventListener('mousemove', mouseMoveDocumentHandler)
   document.removeEventListener('mouseup', mouseUpDocumentHandler)
 })
 

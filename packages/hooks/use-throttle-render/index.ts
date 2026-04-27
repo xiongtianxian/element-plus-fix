@@ -1,4 +1,4 @@
-import { onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { isNumber, isObject, isUndefined } from '@element-plus/utils'
 
 import type { Ref } from 'vue'
@@ -53,6 +53,13 @@ export const useThrottleRender = (
       dispatcher(val ? 'leading' : 'trailing')
     }
   )
+
+  onBeforeUnmount(() => {
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle)
+      timeoutHandle = null
+    }
+  })
 
   return throttled
 }
