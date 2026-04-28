@@ -181,6 +181,7 @@ import {
   computed,
   nextTick,
   onMounted,
+  onUnmounted,
   ref,
   shallowRef,
   toRef,
@@ -713,6 +714,37 @@ onMounted(() => {
   }
   setNativeInputValue()
   nextTick(resizeTextarea)
+})
+
+onUnmounted(() => {
+  // Fix Chrome memory leak caused by strong reference to focused input
+  // See: https://github.com/element-plus/element-plus/issues/xxx
+
+  const targetInput = input.value
+  const targetTextarea = textarea.value
+
+  // 1. Remove input/textarea from DOM to break strong reference
+  if (targetInput && targetInput.parentNode) {
+    targetInput.parentNode.removeChild(targetInput)
+  }
+  if (targetTextarea && targetTextarea.parentNode) {
+    targetTextarea.parentNode.removeChild(targetTextarea)
+  }
+
+  // 2. Force blur to break Chrome's strong reference
+  if (targetInput) targetInput.blur()
+  if (targetTextarea) targetTextarea.blur()
+
+  const selection = window.getSelection?.()
+  if (selection) {
+    selection.removeAllRanges()
+  }
+
+  const activeElement = document.activeElement as HTMLElement | null
+  if (activeElement) {
+    activeElement.blur()
+  }
+  document.body.focus({ preventScroll: true })
 })
 
 defineExpose({
