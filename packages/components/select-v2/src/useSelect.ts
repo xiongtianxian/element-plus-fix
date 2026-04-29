@@ -1,6 +1,7 @@
 import {
   computed,
   nextTick,
+  onBeforeUnmount,
   onMounted,
   reactive,
   ref,
@@ -992,14 +993,23 @@ const useSelect = (props: SelectV2Props, emit: SelectV2EmitFn) => {
     }
   })
 
+  let selectStopper: ReturnType<typeof useResizeObserver>['stop']
+  let selectionStopper: ReturnType<typeof useResizeObserver>['stop']
+  let wrapperStopper: ReturnType<typeof useResizeObserver>['stop']
+  let tagMenuStopper: ReturnType<typeof useResizeObserver>['stop']
+  let collapseItemStopper: ReturnType<typeof useResizeObserver>['stop']
+
   onMounted(() => {
     initStates()
+    selectStopper = useResizeObserver(selectRef, handleResize).stop
+    selectionStopper = useResizeObserver(selectionRef, resetSelectionWidth).stop
+    wrapperStopper = useResizeObserver(wrapperRef, updateTooltip).stop
+    tagMenuStopper = useResizeObserver(tagMenuRef, updateTagTooltip).stop
+    collapseItemStopper = useResizeObserver(
+      collapseItemRef,
+      resetCollapseItemWidth
+    ).stop
   })
-  useResizeObserver(selectRef, handleResize)
-  useResizeObserver(selectionRef, resetSelectionWidth)
-  useResizeObserver(wrapperRef, updateTooltip)
-  useResizeObserver(tagMenuRef, updateTagTooltip)
-  useResizeObserver(collapseItemRef, resetCollapseItemWidth)
 
   // #21498
   let stop: (() => void) | undefined
@@ -1015,6 +1025,15 @@ const useSelect = (props: SelectV2Props, emit: SelectV2EmitFn) => {
       emit('visible-change', newVal)
     }
   )
+
+  onBeforeUnmount(() => {
+    selectStopper?.()
+    selectionStopper?.()
+    wrapperStopper?.()
+    tagMenuStopper?.()
+    collapseItemStopper?.()
+    stop?.()
+  })
 
   return {
     // data exports

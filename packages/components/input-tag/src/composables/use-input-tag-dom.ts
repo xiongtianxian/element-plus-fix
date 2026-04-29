@@ -1,4 +1,11 @@
-import { computed, reactive, ref, useAttrs, useSlots } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  useAttrs,
+  useSlots,
+} from 'vue'
 import { useNamespace } from '@element-plus/hooks'
 import { MINIMUM_INPUT_WIDTH } from '@element-plus/constants'
 import { useResizeObserver } from '@vueuse/core'
@@ -111,8 +118,18 @@ export function useInputTagDom({
     return { maxWidth: `${Math.max(maxWidth, 0)}px` }
   })
 
-  useResizeObserver(innerRef, resetInnerWidth)
-  useResizeObserver(collapseItemRef, resetCollapseItemWidth)
+  let innerStopper: ReturnType<typeof useResizeObserver>['stop']
+  let collapseItemStopper: ReturnType<typeof useResizeObserver>['stop']
+  innerStopper = useResizeObserver(innerRef, resetInnerWidth).stop
+  collapseItemStopper = useResizeObserver(
+    collapseItemRef,
+    resetCollapseItemWidth
+  ).stop
+
+  onBeforeUnmount(() => {
+    innerStopper?.()
+    collapseItemStopper?.()
+  })
 
   return {
     ns,

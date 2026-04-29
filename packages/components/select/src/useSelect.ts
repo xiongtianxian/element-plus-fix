@@ -1,6 +1,7 @@
 import {
   computed,
   nextTick,
+  onBeforeUnmount,
   onMounted,
   reactive,
   ref,
@@ -919,10 +920,21 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     emit('end-reached', direction)
   }
 
-  useResizeObserver(selectionRef, resetSelectionWidth)
-  useResizeObserver(wrapperRef, updateTooltip)
-  useResizeObserver(tagMenuRef, updateTagTooltip)
-  useResizeObserver(collapseItemRef, resetCollapseItemWidth)
+  let selectionStopper: ReturnType<typeof useResizeObserver>['stop']
+  let wrapperStopper: ReturnType<typeof useResizeObserver>['stop']
+  let tagMenuStopper: ReturnType<typeof useResizeObserver>['stop']
+  let collapseItemStopper: ReturnType<typeof useResizeObserver>['stop']
+
+  onMounted(() => {
+    setSelected()
+    selectionStopper = useResizeObserver(selectionRef, resetSelectionWidth).stop
+    wrapperStopper = useResizeObserver(wrapperRef, updateTooltip).stop
+    tagMenuStopper = useResizeObserver(tagMenuRef, updateTagTooltip).stop
+    collapseItemStopper = useResizeObserver(
+      collapseItemRef,
+      resetCollapseItemWidth
+    ).stop
+  })
 
   // #21498
   let stop: (() => void) | undefined
@@ -939,8 +951,12 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     }
   )
 
-  onMounted(() => {
-    setSelected()
+  onBeforeUnmount(() => {
+    selectionStopper?.()
+    wrapperStopper?.()
+    tagMenuStopper?.()
+    collapseItemStopper?.()
+    stop?.()
   })
 
   return {

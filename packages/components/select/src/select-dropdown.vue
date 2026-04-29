@@ -50,7 +50,7 @@ export default defineComponent({
     onMounted(() => {
       // TODO: updatePopper
       // popper.value.update()
-      updateMinWidth();
+      updateMinWidth()
     })
 
     return {

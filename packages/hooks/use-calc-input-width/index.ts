@@ -1,4 +1,4 @@
-import { computed, ref, shallowRef } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { MINIMUM_INPUT_WIDTH } from '@element-plus/constants'
 
@@ -15,7 +15,12 @@ export function useCalcInputWidth() {
       calculatorRef.value?.getBoundingClientRect().width ?? 0
   }
 
-  useResizeObserver(calculatorRef, resetCalculatorWidth)
+  let stopper: ReturnType<typeof useResizeObserver>['stop']
+  stopper = useResizeObserver(calculatorRef, resetCalculatorWidth).stop
+
+  onBeforeUnmount(() => {
+    stopper?.()
+  })
 
   return {
     calculatorRef,

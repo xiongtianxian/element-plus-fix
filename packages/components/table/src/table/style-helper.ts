@@ -1,6 +1,7 @@
 import {
   computed,
   nextTick,
+  onBeforeUnmount,
   onMounted,
   ref,
   unref,
@@ -200,6 +201,8 @@ function useStyle<T extends DefaultRow>(
     }
   }
 
+  let resizeStopper: ReturnType<typeof useResizeObserver>['stop']
+  let tableInnerStopper: ReturnType<typeof useResizeObserver>['stop']
   const bindEvents = () => {
     if (!table.refs.scrollBarRef) return
     if (table.refs.scrollBarRef.wrapRef) {
@@ -213,15 +216,18 @@ function useStyle<T extends DefaultRow>(
       )
     }
     if (props.fit) {
-      useResizeObserver(table.vnode.el as HTMLElement, resizeListener)
+      resizeStopper = useResizeObserver(
+        table.vnode.el as HTMLElement,
+        resizeListener
+      ).stop
     } else {
       useEventListener(window, 'resize', resizeListener)
     }
 
-    useResizeObserver(table.refs.tableInnerWrapper, () => {
+    tableInnerStopper = useResizeObserver(table.refs.tableInnerWrapper, () => {
       resizeListener()
       table.refs?.scrollBarRef?.update()
-    })
+    }).stop
   }
   const resizeListener = () => {
     const el = table.vnode.el
@@ -322,6 +328,11 @@ function useStyle<T extends DefaultRow>(
     }
 
     return {}
+  })
+
+  onBeforeUnmount(() => {
+    resizeStopper?.()
+    tableInnerStopper?.()
   })
 
   return {
