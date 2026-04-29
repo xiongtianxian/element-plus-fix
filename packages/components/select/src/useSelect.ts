@@ -957,6 +957,15 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     tagMenuStopper?.()
     collapseItemStopper?.()
     stop?.()
+
+    // 2. 销毁 tooltip/popper 实例，断开反向引用
+    tooltipRef.value = undefined
+    tagTooltipRef.value = undefined
+    // 3. 清空所有 DOM 引用，让 V8EventListener 释放
+    menuRef.value = undefined
+    scrollbarRef.value = undefined
+    inputRef.value = undefined
+    selectRef.value = undefined
   })
 
   return {

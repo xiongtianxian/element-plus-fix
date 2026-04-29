@@ -574,6 +574,7 @@ export default defineComponent({
         instance.appContext.config.warnHandler = record.originalWarnHandler
         warnHandlerMap.delete(instance.appContext)
       }
+      //API.states.options.clear()
     })
 
     return {

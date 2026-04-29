@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, nextTick, ref, toRef, unref } from 'vue'
+import { inject, nextTick, ref, toRef, unref, onBeforeUnmount } from 'vue'
 import { ElPopperTrigger } from '@element-plus/components/popper'
 import {
   composeEventHandlers,
@@ -110,6 +110,15 @@ const onKeydown = composeEventHandlers(
     }
   }
 )
+
+onBeforeUnmount(() => {
+  // 卸载时关闭 tooltip，打断循环引用
+  if (unref(open)) {
+    onClose()
+  }
+  // 清空自身引用，不碰子组件
+  triggerRef.value = null
+})
 
 defineExpose({
   /**
