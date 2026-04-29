@@ -185,6 +185,25 @@ onDeactivated(() => open.value && hide())
 
 onBeforeUnmount(() => {
   toggleReason.value = undefined
+
+  if(!props.persistent){
+    // 手动销毁 popper 实例
+    const popper = unref(popperRef)
+    if (popper) {
+      popper.popperInstanceRef?.destroy()
+      popperRef.value = undefined
+    }
+
+    // 手动移除 DOM（防止残留）
+    const container = document.querySelector('.el-popper-container')
+    if (container) {
+      const tooltipDOM = container.querySelector(`[data-id="${id}"]`)
+      tooltipDOM?.remove()
+    }
+
+    // 断开引用链
+    open.value = false
+  }
 })
 
 defineExpose({

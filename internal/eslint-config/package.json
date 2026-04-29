@@ -1,6 +1,6 @@
 {
   "name": "@element-plus/eslint-config",
-  "version": "2.13.8-hc.7",
+  "version": "2.13.8-hc.8",
   "type": "module",
   "description": "ESLint Config",
   "license": "MIT",
@@ -36,5 +36,5 @@
   "devDependencies": {
     "eslint": "^10.2.1"
   },
-  "gitHead": "2322d67c4ea9100f63df0694d9419d5563b20498"
+  "gitHead": "a091ec2f4b7cd0ba73647f5d586db426328f5a1b"
 }

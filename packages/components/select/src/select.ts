@@ -234,7 +234,7 @@ export const selectProps = buildProps({
    */
   persistent: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   /**
    * @description custom clear icon component

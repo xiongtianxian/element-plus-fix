@@ -107,6 +107,14 @@ const persistentRef = computed(() => {
 
 onBeforeUnmount(() => {
   stopHandle?.()
+  stopHandle = undefined
+
+  // 2. 强制关闭 tooltip
+  if (unref(open)) {
+    onClose()
+  }
+
+  contentRef.value = undefined
 })
 
 const shouldRender = computed(() => {
@@ -179,6 +187,7 @@ watch(
   (val) => {
     if (!val) {
       stopHandle?.()
+      stopHandle = undefined
     } else {
       ariaHidden.value = false
       stopHandle = onClickOutside(
