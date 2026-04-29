@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onMounted, ref } from 'vue'
+import { computed, defineComponent, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { useNamespace } from '@element-plus/hooks'
 import { selectKey } from './token'
@@ -36,7 +36,7 @@ export default defineComponent({
     const minWidth = ref('')
 
     //必须直接卸载setup顶层，放在onMounted不会自动清理
-    useResizeObserver(() => select.selectRef, updateMinWidth)
+    const { stop: stopResizeObserver } = useResizeObserver(() => select.selectRef, updateMinWidth)
 
     function updateMinWidth() {
       const offsetWidth = select.selectRef?.offsetWidth
@@ -51,6 +51,10 @@ export default defineComponent({
       // TODO: updatePopper
       // popper.value.update()
       updateMinWidth()
+    })
+
+    onUnmounted(() => {
+      stopResizeObserver?.()
     })
 
     return {
