@@ -97,7 +97,10 @@ export const usePopperContent = (props: PopperContentProps) => {
   )
 
   onBeforeUnmount(() => {
-    //popperInstanceRef.value = undefined
+    if (popperInstanceRef.value) {
+      popperInstanceRef.value.destroy()
+      popperInstanceRef.value = undefined
+    }
     stopResizeObserver?.()
     stopResizeObserver = undefined
   })

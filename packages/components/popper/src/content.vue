@@ -150,6 +150,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   triggerTargetAriaStopWatch?.()
   triggerTargetAriaStopWatch = undefined
+
+  trapped.value = false
+
   // contentRef.value = undefined
 })
 
