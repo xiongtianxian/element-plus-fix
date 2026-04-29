@@ -150,7 +150,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   triggerTargetAriaStopWatch?.()
   triggerTargetAriaStopWatch = undefined
-  contentRef.value = undefined
+  // contentRef.value = undefined
 })
 
 defineExpose({

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, nextTick, ref, toRef, unref, onBeforeUnmount } from 'vue'
+import { inject, nextTick, onBeforeUnmount, ref, toRef, unref } from 'vue'
 import { ElPopperTrigger } from '@element-plus/components/popper'
 import {
   composeEventHandlers,

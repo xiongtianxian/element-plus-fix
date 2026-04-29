@@ -185,21 +185,6 @@ onDeactivated(() => open.value && hide())
 
 onBeforeUnmount(() => {
   toggleReason.value = undefined
-
-  if(!props.persistent){
-    // 手动销毁 popper 实例
-    const popper = unref(popperRef)
-    if (popper) {
-      popper.popperInstanceRef?.destroy()
-      popperRef.value = undefined
-    }
-
-    // 断开所有强引用
-    contentRef.value = undefined
-
-    // 断开引用链
-    open.value = false
-  }
 })
 
 defineExpose({
