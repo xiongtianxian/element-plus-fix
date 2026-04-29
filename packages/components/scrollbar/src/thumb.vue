@@ -137,6 +137,9 @@ const mouseMoveDocumentHandler = (e: MouseEvent) => {
       (thumbPositionPercentage * baseScrollHeight) / 100
   }
 }
+// 手动保存清理函数
+let stopMove: (() => void) | undefined
+let stopLeave: (() => void) | undefined
 
 const mouseUpDocumentHandler = () => {
   cursorDown = false
@@ -158,6 +161,9 @@ const mouseLeaveScrollbarHandler = () => {
 }
 
 onBeforeUnmount(() => {
+  stopMove?.()
+  stopLeave?.()
+
   restoreOnselectstart()
   document.removeEventListener('mousemove', mouseMoveDocumentHandler)
   document.removeEventListener('mouseup', mouseUpDocumentHandler)
@@ -167,13 +173,12 @@ const restoreOnselectstart = () => {
   if (document.onselectstart !== originalOnSelectStart)
     document.onselectstart = originalOnSelectStart
 }
-
-useEventListener(
+stopMove = useEventListener(
   toRef(scrollbar, 'scrollbarElement'),
   'mousemove',
   mouseMoveScrollbarHandler
 )
-useEventListener(
+stopLeave = useEventListener(
   toRef(scrollbar, 'scrollbarElement'),
   'mouseleave',
   mouseLeaveScrollbarHandler
