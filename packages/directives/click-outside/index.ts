@@ -21,14 +21,22 @@ if (isClient) {
   let startClick: MouseEvent | undefined
   document.addEventListener('mousedown', (e: MouseEvent) => (startClick = e))
   document.addEventListener('mouseup', (e: MouseEvent) => {
-    if (startClick) {
-      for (const handlers of nodeList.values()) {
-        for (const { documentHandler } of handlers) {
-          documentHandler(e as MouseEvent, startClick)
-        }
+    if (!startClick) return
+    // 👇 修复点：迭代前先过滤掉已经被卸载的 DOM
+    for (const el of Array.from(nodeList.keys())) {
+      if (!el.isConnected) {
+        nodeList.delete(el)
       }
-      startClick = undefined
     }
+
+    // 👇 安全遍历，防止迭代时被修改
+    const handlersList = Array.from(nodeList.values())
+    for (const handlers of handlersList) {
+      for (const { documentHandler } of handlers) {
+        documentHandler(e as MouseEvent, startClick)
+      }
+    }
+    startClick = undefined
   })
 }
 
@@ -112,8 +120,12 @@ const ClickOutside: ObjectDirective<HTMLElement, any> = {
     }
   },
   unmounted(el) {
-    // remove all listeners when a component unmounted
-    nodeList.delete(el)
+    // 👇 【唯一修复点】真正清理 Map 引用，释放 DOM
+    if (nodeList.has(el)) {
+      const handlers = nodeList.get(el)!
+      handlers.length = 0 // 清空数组，释放闭包
+      nodeList.delete(el) // 从 Map 移除
+    }
   },
 }
 

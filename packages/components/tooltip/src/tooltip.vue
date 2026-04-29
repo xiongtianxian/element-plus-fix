@@ -194,12 +194,8 @@ onBeforeUnmount(() => {
       popperRef.value = undefined
     }
 
-    // 手动移除 DOM（防止残留）
-    const container = document.querySelector('.el-popper-container')
-    if (container) {
-      const tooltipDOM = container.querySelector(`[data-id="${id}"]`)
-      tooltipDOM?.remove()
-    }
+    // 断开所有强引用
+    contentRef.value = undefined
 
     // 断开引用链
     open.value = false

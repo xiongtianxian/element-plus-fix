@@ -1,6 +1,6 @@
 {
   "name": "element-plus",
-  "version": "2.13.8-hc.9",
+  "version": "2.13.8-hc.10",
   "description": "A Component Library for Vue 3",
   "keywords": [
     "element-plus",
@@ -110,5 +110,5 @@
     "not ie 11",
     "not op_mini all"
   ],
-  "gitHead": "0f1f53b7730631a57e3f89cdc0992ce38cced4c9"
+  "gitHead": "c0ed20a1a9886a104f831c91072536a67af4ef87"
 }
