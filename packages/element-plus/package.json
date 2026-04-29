@@ -1,6 +1,6 @@
 {
   "name": "element-plus",
-  "version": "2.13.8-hc.1",
+  "version": "2.13.8-hc.3",
   "description": "A Component Library for Vue 3",
   "keywords": [
     "element-plus",
@@ -66,8 +66,7 @@
     "url": "git+https://github.com/element-plus/element-plus.git"
   },
   "publishConfig": {
-    "registry": "http://172.16.10.253:4873/",
-    "access": "restricted"
+    "registry": "http://172.16.10.253:4873/"
   },
   "style": "dist/index.css",
   "sideEffects": [
@@ -81,13 +80,13 @@
     "vue": "^3.3.7"
   },
   "dependencies": {
-    "@ctrl/tinycolor": "catalog:",
+    "@ctrl/tinycolor": "^4.2.0",
     "@element-plus/icons-vue": "^2.3.2",
     "@floating-ui/dom": "^1.0.1",
     "@popperjs/core": "npm:@sxzz/popperjs-es@^2.11.7",
     "@types/lodash": "^4.17.24",
     "@types/lodash-es": "^4.17.12",
-    "@vueuse/core": "catalog:",
+    "@vueuse/core": "14.2.1",
     "async-validator": "^4.2.5",
     "dayjs": "^1.11.20",
     "lodash": "^4.18.1",
@@ -95,7 +94,7 @@
     "lodash-unified": "^1.0.3",
     "memoize-one": "^6.0.0",
     "normalize-wheel-es": "^1.2.0",
-    "vue-component-type-helpers": "catalog:"
+    "vue-component-type-helpers": "^3.2.7"
   },
   "devDependencies": {
     "@types/node": "*",
@@ -110,5 +109,6 @@
     "> 1%",
     "not ie 11",
     "not op_mini all"
-  ]
+  ],
+  "gitHead": "736960fd51cc85b0e0e032e0e4a2a6f91d3d7a33"
 }

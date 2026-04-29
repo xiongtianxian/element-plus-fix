@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useEventListener, useResizeObserver, useTimeoutFn } from '@vueuse/core'
 import {
   TypeComponents,
@@ -178,10 +178,16 @@ watch(
   }
 )
 
-useEventListener(document, 'keydown', keydown)
+const cleanup = useEventListener(document, 'keydown', keydown)
 
-useResizeObserver(messageRef, () => {
-  height.value = messageRef.value!.getBoundingClientRect().height
+const { stop: stopResizeObserver } = useResizeObserver(messageRef, () => {
+  if (messageRef.value) {
+    height.value = messageRef.value.getBoundingClientRect().height
+  }
+})
+onUnmounted(() => {
+  stopResizeObserver() // 强制清理
+  cleanup()
 })
 
 defineExpose({

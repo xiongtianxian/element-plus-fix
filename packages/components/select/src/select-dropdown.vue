@@ -35,6 +35,9 @@ export default defineComponent({
     const isFitInputWidth = computed(() => select.props.fitInputWidth)
     const minWidth = ref('')
 
+    //必须直接卸载setup顶层，放在onMounted不会自动清理
+    useResizeObserver(() => select.selectRef, updateMinWidth)
+
     function updateMinWidth() {
       const offsetWidth = select.selectRef?.offsetWidth
       if (offsetWidth) {
@@ -47,8 +50,7 @@ export default defineComponent({
     onMounted(() => {
       // TODO: updatePopper
       // popper.value.update()
-      updateMinWidth()
-      useResizeObserver(select.selectRef, updateMinWidth)
+      updateMinWidth();
     })
 
     return {

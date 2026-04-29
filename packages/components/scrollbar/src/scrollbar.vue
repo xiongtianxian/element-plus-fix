@@ -32,6 +32,7 @@ import {
   nextTick,
   onActivated,
   onMounted,
+  onUnmounted,
   onUpdated,
   provide,
   reactive,
@@ -265,6 +266,12 @@ onMounted(() => {
     })
 })
 onUpdated(() => update())
+
+onUnmounted(() => {
+  stopResizeObserver?.()
+  stopWrapResizeObserver?.()
+  stopResizeListener?.()
+})
 
 defineExpose({
   /** @description scrollbar wrap ref */

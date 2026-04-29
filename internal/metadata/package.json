@@ -1,6 +1,6 @@
 {
   "name": "@element-plus/metadata",
-  "version": "0.0.1",
+  "version": "2.13.8-hc.3",
   "type": "module",
   "description": "Metadata for Element Plus",
   "keywords": [
@@ -32,5 +32,6 @@
     "octokit": "^5.0.5",
     "tinyglobby": "^0.2.16",
     "tsx": "^4.21.0"
-  }
+  },
+  "gitHead": "736960fd51cc85b0e0e032e0e4a2a6f91d3d7a33"
 }

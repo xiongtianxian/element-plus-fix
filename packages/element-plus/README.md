@@ -1,11 +1,3 @@
-# `element-plus`
+这个项目存在的意义在于解决官方社区没有事件修复内存泄漏的问题，这个项目会持续更新官方的最后版本，并只保留一个修复的版本
 
-> TODO: description
-
-## Usage
-
-```
-const elementPlus = require('element-plus');
-
-// TODO: DEMONSTRATE API
-```
+1 修复了useResizeObserver使用不当导致的内存泄漏问题

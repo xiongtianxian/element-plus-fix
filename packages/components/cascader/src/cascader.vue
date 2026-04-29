@@ -986,6 +986,8 @@ const blur = () => {
   inputRef.value?.blur()
 }
 
+useResizeObserver(() => inputRef.value?.$el, updateStyle)
+
 watch(filtering, updatePopperPosition)
 
 watch(
@@ -1022,12 +1024,11 @@ watch(
 
 onMounted(() => {
   const inputInner = inputRef.value!.input!
-  const inputWrapper = inputRef.value!.$el!
 
   const inputInnerHeight = getInputInnerHeight(inputInner)
 
   inputInitialHeight = inputInner.offsetHeight || inputInnerHeight
-  useResizeObserver(inputWrapper, updateStyle)
+
 })
 
 defineExpose({
