@@ -952,20 +952,20 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
   )
 
   onBeforeUnmount(() => {
+    // 1. 清理 useResizeObserver（当前组件创建的外部资源，Vue 无法自动清理）
     selectionStopper?.()
     wrapperStopper?.()
     tagMenuStopper?.()
     collapseItemStopper?.()
     stop?.()
 
-    // 2. 销毁 tooltip/popper 实例，断开反向引用
-    tooltipRef.value = undefined
-    tagTooltipRef.value = undefined
-    // 3. 清空所有 DOM 引用，让 V8EventListener 释放
-    menuRef.value = undefined
-    scrollbarRef.value = undefined
-    inputRef.value = undefined
-    selectRef.value = undefined
+    // 2. 清空 options Map 和数组，防止循环引用
+    // options 和 cachedOptions 中的对象可能持有对 select 上下文的引用
+    // selected 和 optionValues 中的对象也可能形成循环引用
+    states.options.clear()
+    states.cachedOptions.clear()
+    states.selected.length = 0
+    states.optionValues.length = 0
   })
 
   return {
