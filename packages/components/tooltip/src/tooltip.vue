@@ -185,6 +185,10 @@ onDeactivated(() => open.value && hide())
 
 onBeforeUnmount(() => {
   toggleReason.value = undefined
+  // 卸载前强制关闭，打断所有事件引用
+  if (open.value) {
+    hide()
+  }
 })
 
 defineExpose({
