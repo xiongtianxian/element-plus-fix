@@ -38,7 +38,6 @@
             nsSelect.is('filterable', filterable),
             nsSelect.is('disabled', selectDisabled),
           ]"
-          @click.prevent="toggleMenu"
         >
           <div
             v-if="$slots.prefix"
@@ -47,6 +46,7 @@
           >
             <slot name="prefix" />
           </div>
+
           <div
             ref="selectionRef"
             :class="[
@@ -167,6 +167,7 @@
                 </template>
               </el-tooltip>
             </slot>
+
             <div
               :class="[
                 nsSelect.e('selected-item'),
@@ -199,13 +200,6 @@
                 :aria-label="ariaLabel"
                 aria-autocomplete="none"
                 aria-haspopup="listbox"
-                @keydown="handleKeydown"
-                @compositionstart="handleCompositionStart"
-                @compositionupdate="handleCompositionUpdate"
-                @compositionend="handleCompositionEnd"
-                @input="onInput"
-                @change.stop
-                @click.stop="toggleMenu"
               />
               <span
                 v-if="filterable"
@@ -215,6 +209,7 @@
                 v-text="states.inputValue"
               />
             </div>
+
             <div
               v-if="shouldShowPlaceholder"
               :class="[
@@ -238,6 +233,7 @@
               <span v-else>{{ currentPlaceholder }}</span>
             </div>
           </div>
+
           <div ref="suffixRef" :class="nsSelect.e('suffix')">
             <el-icon
               v-if="iconComponent && !showClearBtn"
@@ -245,6 +241,7 @@
             >
               <component :is="iconComponent" />
             </el-icon>
+
             <el-icon
               v-if="showClearBtn && clearIcon"
               :class="[
@@ -256,6 +253,7 @@
             >
               <component :is="clearIcon" />
             </el-icon>
+
             <el-icon
               v-if="validateState && validateIcon && needStatusIcon"
               :class="[
@@ -269,6 +267,7 @@
           </div>
         </div>
       </template>
+
       <template #content>
         <el-select-menu ref="menuRef">
           <div
@@ -278,6 +277,7 @@
           >
             <slot name="header" />
           </div>
+
           <el-scrollbar
             v-show="states.options.size > 0 && !loading"
             :id="contentId"
@@ -299,7 +299,10 @@
             />
             <el-options>
               <slot>
-                <template v-for="(option, index) in options" :key="index">
+                <template
+                  v-for="(option, index) in options"
+                  :key="index"
+                >
                   <el-option-group
                     v-if="getOptions(option)?.length"
                     :label="getLabel(option)"
@@ -311,17 +314,22 @@
                       v-bind="getOptionProps(item)"
                     />
                   </el-option-group>
-                  <el-option v-else v-bind="getOptionProps(option)" />
+                  <el-option
+                    v-else
+                    v-bind="getOptionProps(option)"
+                  />
                 </template>
               </slot>
             </el-options>
           </el-scrollbar>
+
           <div
             v-if="$slots.loading && loading"
             :class="nsSelect.be('dropdown', 'loading')"
           >
             <slot name="loading" />
           </div>
+
           <div
             v-else-if="loading || filteredOptionsCount === 0"
             :class="nsSelect.be('dropdown', 'empty')"
@@ -330,6 +338,7 @@
               <span>{{ emptyText }}</span>
             </slot>
           </div>
+
           <div
             v-if="$slots.footer"
             :class="nsSelect.be('dropdown', 'footer')"
@@ -387,14 +396,12 @@ const warnHandlerMap = new WeakMap<AppContext, WarnHandlerRecord>()
 
 const createSelectWarnHandler = (appContext: AppContext): WarnHandler => {
   return (...args) => {
-    // Overrides warnings about slots not being executable outside of a render function.
-    // We call slot below just to simulate data when persist is false, this warning message should be ignored
     const message = args[0]
     if (
       !message ||
       (message.includes(
-        'Slot "default" invoked outside of the render function'
-      ) &&
+          'Slot "default" invoked outside of the render function'
+        ) &&
         args[2]?.includes('ElTreeSelect'))
     )
       return
@@ -403,8 +410,6 @@ const createSelectWarnHandler = (appContext: AppContext): WarnHandler => {
       original(...args)
       return
     }
-    // eslint-disable-next-line no-console
-    console.warn(...args)
   }
 }
 
@@ -412,7 +417,7 @@ const getWarnHandlerRecord = (appContext: AppContext): WarnHandlerRecord => {
   let record = warnHandlerMap.get(appContext)
   if (!record) {
     record = {
-      originalWarnHandler: appContext.config.warnHandler,
+      originalWarnHandler: appContext.warnHandler,
       handler: createSelectWarnHandler(appContext),
       count: 0,
     }
@@ -420,6 +425,7 @@ const getWarnHandlerRecord = (appContext: AppContext): WarnHandlerRecord => {
   }
   return record
 }
+
 export default defineComponent({
   name: COMPONENT_NAME,
   componentName: COMPONENT_NAME,
@@ -441,16 +447,14 @@ export default defineComponent({
     const instance = getCurrentInstance()!
     const warnRecord = getWarnHandlerRecord(instance.appContext)
     warnRecord.count += 1
-    instance.appContext.config.warnHandler = warnRecord.handler
+    instance.appContext.warnHandler = warnRecord.handler
+
     const modelValue = computed(() => {
       const { modelValue: rawModelValue, multiple } = props
       const fallback = multiple ? [] : undefined
-      // When it is array, we check if this is multi-select.
-      // Based on the result we get
       if (isArray(rawModelValue)) {
         return multiple ? rawModelValue : fallback
       }
-
       return multiple ? fallback : rawModelValue
     })
 
@@ -480,27 +484,19 @@ export default defineComponent({
     }
 
     const manuallyRenderSlots = (vnodes: VNode[] | undefined) => {
-      // After option rendering is completed, the useSelect internal state can collect the value of each option.
-      // If the persistent value is false, option will not be rendered by default, so in this case,
-      // manually render and load option data here.
       const children = flattedChildren(vnodes || []) as VNode[]
       children.forEach((item) => {
         if (
           isObject(item) &&
-          // @ts-expect-error
           (item.type.name === 'ElOption' || item.type.name === 'ElTree')
         ) {
-          // @ts-expect-error
           const _name = item.type.name
           if (_name === 'ElTree') {
-            // tree-select component is a special case.
-            // So we need to handle it separately.
             const treeData = item.props?.data || []
             const flatData = flatTreeSelectData(treeData)
             flatData.forEach((treeItem: any) => {
               treeItem.currentLabel =
-                treeItem.label ??
-                (isObject(treeItem.value) ? '' : treeItem.value)
+                treeItem.label ?? (isObject(treeItem.value) ? '' : treeItem.value)
               API.onOptionCreate(treeItem)
             })
           } else if (_name === 'ElOption') {
@@ -512,6 +508,7 @@ export default defineComponent({
         }
       })
     }
+
     watch(
       () => [
         props.persistent || API.expanded.value || !slots.default
@@ -520,22 +517,12 @@ export default defineComponent({
         modelValue.value,
       ],
       () => {
-        // When persistent is false and the dropdown is closed, the menu is unmounted.
-        // We should always re-hydrate option data from slots so labels stay in sync
-        // with dynamic option list updates. Skip only when persistent is true or
-        // when the dropdown is currently expanded (mounted options will manage themselves).
         if (props.persistent || API.expanded.value) {
-          // If persistent is true, we don't need to manually render slots.
           return
         }
-        // When using :options prop (no slot content), el-option components register
-        // and unregister themselves via onOptionCreate/onOptionDestroy lifecycle hooks.
-        // Calling options.clear() here would prematurely wipe options that are still
-        // mounted, causing a "No Data" flash during rapid open/close toggling.
         if (!slots.default) {
           return
         }
-        // Reset current options snapshot before re-collecting from slots.
         API.states.options.clear()
         manuallyRenderSlots(slots.default?.())
       },
@@ -566,15 +553,13 @@ export default defineComponent({
     })
 
     onBeforeUnmount(() => {
-      // https://github.com/element-plus/element-plus/issues/21279
       const record = warnHandlerMap.get(instance.appContext)
       if (!record) return
       record.count -= 1
       if (record.count <= 0) {
-        instance.appContext.config.warnHandler = record.originalWarnHandler
+        instance.appContext.warnHandler = record.originalWarnHandler
         warnHandlerMap.delete(instance.appContext)
       }
-      //API.states.options.clear()
     })
 
     return {
