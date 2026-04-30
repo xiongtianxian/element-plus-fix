@@ -142,6 +142,15 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
 
   const needStatusIcon = computed(() => form?.statusIcon ?? false)
 
+  const showClearBtn = computed(() => {
+    return (
+      props.clearable &&
+      !selectDisabled.value &&
+      hasModelValue.value &&
+      (isFocused.value || states.inputHovering)
+    )
+  })
+
   const iconComponent = computed(() =>
     props.remote && props.filterable && !props.remoteShowSuffix
       ? ''

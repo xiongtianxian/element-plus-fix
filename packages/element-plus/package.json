@@ -1,6 +1,6 @@
 {
   "name": "element-plus",
-  "version": "2.13.8-hc.26",
+  "version": "2.13.8-hc.27",
   "description": "A Component Library for Vue 3",
   "keywords": [
     "element-plus",
@@ -37,5 +37,5 @@
   "peerDependencies": {
     "vue": "^3.2.0"
   },
-  "gitHead": "7541b85a137f0297da2c0280031e02d528785c2a"
+  "gitHead": "35e9001a8b9306502a905cf00adb802a66bad6e8"
 }
