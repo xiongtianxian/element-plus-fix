@@ -659,6 +659,12 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     if (inputEl) inputEl.removeEventListener('keydown', handleKeydown as unknown as EventListener)
     if (inputEl) inputEl.removeEventListener('input', onInput as unknown as EventListener)
 
+    wrapperRef.value = undefined
+    selectionRef.value = undefined
+    tooltipRef.value = undefined
+    selectRef.value = undefined
+    prefixRef.value = undefined
+
     // 清理引用
     states.options.clear()
     states.cachedOptions.clear()

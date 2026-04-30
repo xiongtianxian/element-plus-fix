@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, provide, ref } from 'vue'
+import { computed, onBeforeUnmount, provide, ref } from 'vue'
 import { POPPER_INJECTION_KEY } from './constants'
 
 import type { Instance as PopperInstance } from '@popperjs/core'
@@ -50,4 +50,17 @@ const popperProvides = {
 defineExpose(popperProvides)
 
 provide(POPPER_INJECTION_KEY, popperProvides)
+
+onBeforeUnmount(() => {
+  // 1. 销毁 popper 实例
+  if (popperInstanceRef.value) {
+    popperInstanceRef.value.destroy()
+    popperInstanceRef.value = undefined
+  }
+
+  // 2. 清空所有 DOM 引用（彻底断链）
+  triggerRef.value = undefined
+  contentRef.value = undefined
+  referenceRef.value = undefined
+})
 </script>
