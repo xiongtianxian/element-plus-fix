@@ -678,7 +678,7 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     updateTooltip, updateTagTooltip, debouncedOnInputChange, onInput,
     deletePrevTag, deleteTag, deleteSelected, handleOptionSelect,
     scrollToOption, hasModelValue, shouldShowPlaceholder, currentPlaceholder,
-    mouseEnterEventName, needStatusIcon, iconComponent,
+    mouseEnterEventName, needStatusIcon, showClearBtn, iconComponent,
     iconReverse, validateState, validateIcon, showNewOption, updateOptions,
     collapseTagSize, setSelected, selectDisabled, emptyText,
     handleCompositionStart, handleCompositionUpdate, handleCompositionEnd,
