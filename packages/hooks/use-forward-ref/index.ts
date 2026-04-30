@@ -16,11 +16,17 @@ export const useForwardRef = <T>(forwardRef: Ref<T | null>) => {
     forwardRef.value = el
   }) as ForwardRefSetter
 
-  provide(FORWARD_REF_INJECTION_KEY, {
+  const injection = {
     setForwardRef,
-  })
+  }
+
+  provide(FORWARD_REF_INJECTION_KEY, injection)
+
+  // 🔥 【修复关键】unmount 时清空 injection 对象
   return () => {
     setForwardRef(null)
+    // 切断闭包引用
+    injection.setForwardRef = null
   }
 }
 

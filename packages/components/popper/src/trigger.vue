@@ -165,8 +165,7 @@ onBeforeUnmount(() => {
     })
     triggerRef.value = undefined
   }
-  // 🔴 清空 forwardRef
-  cleanForwardRef();
+  cleanForwardRef()
 })
 
 defineExpose({
