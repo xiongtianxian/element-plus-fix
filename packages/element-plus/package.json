@@ -1,6 +1,6 @@
 {
   "name": "element-plus",
-  "version": "2.13.8-hc.27",
+  "version": "2.13.8-hc.29",
   "description": "A Component Library for Vue 3",
   "keywords": [
     "element-plus",
@@ -8,34 +8,107 @@
     "component library",
     "ui framework",
     "ui",
-    "vue",
-    "vue3"
+    "vue"
   ],
   "homepage": "https://element-plus.org/",
   "bugs": {
     "url": "https://github.com/element-plus/element-plus/issues"
   },
   "license": "MIT",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
+  "main": "lib/index.js",
+  "module": "es/index.mjs",
+  "types": "es/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js"
+      "types": "./es/index.d.ts",
+      "import": "./es/index.mjs",
+      "require": "./lib/index.js"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./global": {
+      "types": "./global.d.ts"
+    },
+    "./es": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.mjs"
+    },
+    "./lib": {
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.js"
+    },
+    "./es/*.mjs": {
+      "types": "./es/*.d.ts",
+      "import": "./es/*.mjs"
+    },
+    "./es/*": {
+      "types": [
+        "./es/*.d.ts",
+        "./es/*/index.d.ts"
+      ],
+      "import": "./es/*.mjs"
+    },
+    "./lib/*.js": {
+      "types": "./lib/*.d.ts",
+      "require": "./lib/*.js"
+    },
+    "./lib/*": {
+      "types": [
+        "./lib/*.d.ts",
+        "./lib/*/index.d.ts"
+      ],
+      "require": "./lib/*.js"
+    },
+    "./*": "./*"
   },
-  "unpkg": "dist/index.full.min.js",
-  "jsdelivr": "dist/index.full.min.js",
+  "unpkg": "dist/index.full.js",
+  "jsdelivr": "dist/index.full.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/element-plus/element-plus.git"
+  },
+  "publishConfig": {
+    "registry": "http://172.16.10.253:4873/"
+  },
+  "style": "dist/index.css",
   "sideEffects": [
-    "dist/style.css",
-    "theme-chalk/**/*.css"
+    "dist/*",
+    "theme-chalk/**/*.css",
+    "theme-chalk/src/**/*.scss",
+    "es/components/*/style/*",
+    "lib/components/*/style/*"
   ],
   "peerDependencies": {
-    "vue": "^3.2.0"
+    "vue": "^3.3.7"
   },
-  "gitHead": "35e9001a8b9306502a905cf00adb802a66bad6e8"
+  "dependencies": {
+    "@ctrl/tinycolor": "^4.2.0",
+    "@element-plus/icons-vue": "^2.3.2",
+    "@floating-ui/dom": "^1.0.1",
+    "@popperjs/core": "npm:@sxzz/popperjs-es@^2.11.7",
+    "@types/lodash": "^4.17.24",
+    "@types/lodash-es": "^4.17.12",
+    "@vueuse/core": "14.2.1",
+    "async-validator": "^4.2.5",
+    "dayjs": "^1.11.20",
+    "lodash": "^4.18.1",
+    "lodash-es": "^4.18.1",
+    "lodash-unified": "^1.0.3",
+    "memoize-one": "^6.0.0",
+    "normalize-wheel-es": "^1.2.0",
+    "vue-component-type-helpers": "^3.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "*",
+    "vue-router": "^5.0.6"
+  },
+  "vetur": {
+    "tags": "tags.json",
+    "attributes": "attributes.json"
+  },
+  "web-types": "web-types.json",
+  "browserslist": [
+    "> 1%",
+    "not ie 11",
+    "not op_mini all"
+  ],
+  "gitHead": "1f8075362ffa65842a42710c70b7e0f7a7787760"
 }
