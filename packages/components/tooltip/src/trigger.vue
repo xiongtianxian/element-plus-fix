@@ -5,20 +5,13 @@
     :open="open"
     :virtual-triggering="virtualTriggering"
     :class="ns.e('trigger')"
-    @blur="onBlur"
-    @click="onClick"
-    @contextmenu="onContextMenu"
-    @focus="onFocus"
-    @mouseenter="onMouseenter"
-    @mouseleave="onMouseleave"
-    @keydown="onKeydown"
   >
     <slot />
   </el-popper-trigger>
 </template>
 
 <script lang="ts" setup>
-import { inject, nextTick, onBeforeUnmount, ref, toRef, unref } from 'vue'
+import { inject, nextTick, onBeforeUnmount, ref, toRef, unref, onMounted } from 'vue'
 import { ElPopperTrigger } from '@element-plus/components/popper'
 import {
   composeEventHandlers,
@@ -49,13 +42,18 @@ const { controlled, id, open, onOpen, onClose, onToggle } = inject(
 )!
 
 const triggerRef = ref<OnlyChildExpose | null>(null)
+// 保存真实DOM，用于手动绑定事件（解决Vue跨组件闭包泄漏）
+let triggerElement: HTMLElement | null = null
 
 const stopWhenControlledOrDisabled = () => {
   if (unref(controlled) || props.disabled) {
     return true
   }
 }
+
 const trigger = toRef(props, 'trigger')
+
+// 所有事件逻辑保持不变
 const onMouseenter = composeEventHandlers(
   stopWhenControlledOrDisabled,
   whenTrigger(trigger, 'hover', (e) => {
@@ -75,23 +73,19 @@ const onMouseleave = composeEventHandlers(
 const onClick = composeEventHandlers(
   stopWhenControlledOrDisabled,
   whenTrigger(trigger, 'click', (e) => {
-    // distinguish left click
     if ((e as MouseEvent).button === 0) {
       onToggle(e)
     }
   })
 )
-
 const onFocus = composeEventHandlers(
   stopWhenControlledOrDisabled,
   whenTrigger(trigger, 'focus', onOpen)
 )
-
 const onBlur = composeEventHandlers(
   stopWhenControlledOrDisabled,
   whenTrigger(trigger, 'focus', onClose)
 )
-
 const onContextMenu = composeEventHandlers(
   stopWhenControlledOrDisabled,
   whenTrigger(trigger, 'contextmenu', (e: Event) => {
@@ -99,7 +93,6 @@ const onContextMenu = composeEventHandlers(
     onToggle(e)
   })
 )
-
 const onKeydown = composeEventHandlers(
   stopWhenControlledOrDisabled,
   (e: Event) => {
@@ -111,19 +104,48 @@ const onKeydown = composeEventHandlers(
   }
 )
 
+// --------------------------
+// 核心修复：手动绑定事件
+// 解决 Vue 模板事件 + inject 闭包泄漏
+// --------------------------
+onMounted(() => {
+  nextTick(() => {
+    const el = triggerRef.value?.$el
+    if (!el) return
+    triggerElement = el as HTMLElement
+
+    triggerElement.addEventListener('mouseenter', onMouseenter)
+    triggerElement.addEventListener('mouseleave', onMouseleave)
+    triggerElement.addEventListener('click', onClick)
+    triggerElement.addEventListener('focus', onFocus)
+    triggerElement.addEventListener('blur', onBlur)
+    triggerElement.addEventListener('contextmenu', onContextMenu)
+    triggerElement.addEventListener('keydown', onKeydown)
+  })
+})
+
+// --------------------------
+// 核心修复：手动解绑事件
+// 这是泄漏彻底消失的关键
+// --------------------------
 onBeforeUnmount(() => {
-  // 卸载时关闭 tooltip，打断循环引用
-  if (unref(open)) {
-    onClose()
+  if (unref(open)) onClose()
+
+  if (triggerElement) {
+    triggerElement.removeEventListener('mouseenter', onMouseenter)
+    triggerElement.removeEventListener('mouseleave', onMouseleave)
+    triggerElement.removeEventListener('click', onClick)
+    triggerElement.removeEventListener('focus', onFocus)
+    triggerElement.removeEventListener('blur', onBlur)
+    triggerElement.removeEventListener('contextmenu', onContextMenu)
+    triggerElement.removeEventListener('keydown', onKeydown)
+    triggerElement = null
   }
-  // 清空自身引用，不碰子组件
+
   triggerRef.value = null
 })
 
 defineExpose({
-  /**
-   * @description trigger element
-   */
   triggerRef,
 })
 </script>
