@@ -32,7 +32,7 @@ const props = defineProps<PopperTriggerProps>()
 
 const { role, triggerRef } = inject(POPPER_INJECTION_KEY, undefined)!
 
-useForwardRef(triggerRef)
+const cleanForwardRef = useForwardRef(triggerRef)
 
 const ariaControls = computed<string | undefined>(() => {
   return ariaHaspopup.value ? props.id : undefined
@@ -165,6 +165,8 @@ onBeforeUnmount(() => {
     })
     triggerRef.value = undefined
   }
+  // 🔴 清空 forwardRef
+  cleanForwardRef();
 })
 
 defineExpose({

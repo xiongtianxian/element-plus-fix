@@ -189,6 +189,9 @@ onBeforeUnmount(() => {
   if (open.value) {
     hide()
   }
+  // 清除对 trigger DOM 的所有引用
+  popperRef.value = undefined
+  contentRef.value = undefined
 })
 
 defineExpose({
