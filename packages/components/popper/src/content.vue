@@ -153,7 +153,7 @@ onBeforeUnmount(() => {
 
   trapped.value = false
 
-  // contentRef.value = undefined
+  contentRef.value = undefined
 })
 
 defineExpose({

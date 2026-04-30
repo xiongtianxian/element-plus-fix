@@ -465,6 +465,13 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
   // ==============================================
   // 所有事件 100% 纯具名函数，无闭包
   // ==============================================
+  function handleMouseenter() {
+    states.inputHovering = true
+  }
+
+  function handleMouseleave() {
+    states.inputHovering = false
+  }
   function handleClearClick(e: Event) {
     deleteSelected(e)
   }
@@ -603,6 +610,7 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
   let wrapperEl: HTMLElement | null = null
   let inputEl: HTMLElement | null = null
   let clearEl: HTMLElement | null = null
+  let selectEl: HTMLElement | null = null
 
   onMounted(() => {
     setSelected()
@@ -613,9 +621,12 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
 
     // 手动绑定事件，彻底消除模板闭包
     nextTick(() => {
+      selectEl = selectRef.value as HTMLElement
       wrapperEl = wrapperRef.value as HTMLElement
       inputEl = inputRef.value as HTMLElement
 
+      selectEl.addEventListener('mouseenter', handleMouseenter)
+      selectEl.addEventListener('mouseleave', handleMouseleave)
       wrapperEl?.addEventListener('click', toggleMenu)
       inputEl?.addEventListener('keydown', handleKeydown as unknown as EventListener)
       inputEl?.addEventListener('input', onInput as unknown as EventListener)
@@ -640,6 +651,10 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     observeStop?.()
 
     // 清理 DOM 事件
+    if(selectEl){
+      selectEl.removeEventListener('mouseenter', handleMouseenter)
+      selectEl.removeEventListener('mouseleave', handleMouseleave)
+    }
     if (wrapperEl) wrapperEl.removeEventListener('click', toggleMenu)
     if (inputEl) inputEl.removeEventListener('keydown', handleKeydown as unknown as EventListener)
     if (inputEl) inputEl.removeEventListener('input', onInput as unknown as EventListener)
@@ -664,6 +679,8 @@ export const useSelect = (props: SelectProps, emit: SelectEmits) => {
     handleKeydown, onOptionCreate, onOptionDestroy, handleMenuEnter,
     focus, blur,
 
+    handleMouseenter,
+    handleMouseleave,
     handleClearClick,
     handleClickOutside,
     handleEsc,
