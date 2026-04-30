@@ -38,9 +38,19 @@ export const OnlyChild = defineComponent({
         debugWarn(NAME, 'requires exact only one valid child.')
       }
 
-      return withDirectives(cloneVNode(firstLegitNode!, attrs), [
-        [forwardRefDirective],
-      ])
+      // =========================================
+      // 修复：克隆节点时，添加 unmount 清理
+      // =========================================
+      const cloned = cloneVNode(firstLegitNode!, attrs)
+
+      // 重写节点的 destroy 钩子，清空 ref
+      const originalOnUnmount = cloned.onUnmount
+      cloned.onUnmount = (...args) => {
+        // 清空 forwardRef
+        forwardRefInjection?.setForwardRef(null)
+        originalOnUnmount?.apply(cloned, args)
+      }
+      return withDirectives(cloned, [[forwardRefDirective]])
     }
   },
 })
