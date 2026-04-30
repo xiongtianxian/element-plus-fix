@@ -11,7 +11,15 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, nextTick, onBeforeUnmount, ref, toRef, unref, onMounted } from 'vue'
+import {
+  inject,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  toRef,
+  unref,
+  onMounted,
+} from 'vue'
 import { ElPopperTrigger } from '@element-plus/components/popper'
 import {
   composeEventHandlers,
@@ -36,112 +44,99 @@ const props = withDefaults(
 )
 
 const ns = useNamespace('tooltip')
-const { controlled, id, open, onOpen, onClose, onToggle } = inject(
-  TOOLTIP_INJECTION_KEY,
-  undefined
-)!
+const tooltip = inject(TOOLTIP_INJECTION_KEY, undefined)!
+
+const { controlled, id, open, onOpen, onClose, onToggle } = tooltip
 
 const triggerRef = ref<OnlyChildExpose | null>(null)
-// 保存真实DOM，用于手动绑定事件（解决Vue跨组件闭包泄漏）
 let triggerElement: HTMLElement | null = null
 
-const stopWhenControlledOrDisabled = () => {
-  if (unref(controlled) || props.disabled) {
-    return true
-  }
-}
-
-const trigger = toRef(props, 'trigger')
-
-// 所有事件逻辑保持不变
-const onMouseenter = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'hover', (e) => {
+// --------------------------
+// 关键：不闭包！不捕获！
+// 所有回调变成 PURE FUNCTION
+// --------------------------
+const handlers = {
+  mouseenter(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'hover')) return
     onOpen(e)
-
     if (props.focusOnTarget && e.target) {
       nextTick(() => {
         focusElement(e.target as HTMLElement, { preventScroll: true })
       })
     }
-  })
-)
-const onMouseleave = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'hover', onClose)
-)
-const onClick = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'click', (e) => {
+  },
+  mouseleave(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'hover')) return
+    onClose()
+  },
+  click(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'click')) return
     if ((e as MouseEvent).button === 0) {
       onToggle(e)
     }
-  })
-)
-const onFocus = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'focus', onOpen)
-)
-const onBlur = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'focus', onClose)
-)
-const onContextMenu = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  whenTrigger(trigger, 'contextmenu', (e: Event) => {
+  },
+  focus(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'focus')) return
+    onOpen(e)
+  },
+  blur(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'focus')) return
+    onClose()
+  },
+  contextmenu(e: Event) {
+    if (unref(controlled) || props.disabled) return
+    if (!whenTrigger(toRef(props, 'trigger'), 'contextmenu')) return
     e.preventDefault()
     onToggle(e)
-  })
-)
-const onKeydown = composeEventHandlers(
-  stopWhenControlledOrDisabled,
-  (e: Event) => {
+  },
+  keydown(e: Event) {
+    if (unref(controlled) || props.disabled) return
     const code = getEventCode(e as KeyboardEvent)
     if (props.triggerKeys.includes(code)) {
       e.preventDefault()
       onToggle(e)
     }
-  }
-)
+  },
+}
 
-// --------------------------
-// 核心修复：手动绑定事件
-// 解决 Vue 模板事件 + inject 闭包泄漏
-// --------------------------
 onMounted(() => {
   nextTick(() => {
     const el = triggerRef.value?.$el
     if (!el) return
     triggerElement = el as HTMLElement
 
-    triggerElement.addEventListener('mouseenter', onMouseenter)
-    triggerElement.addEventListener('mouseleave', onMouseleave)
-    triggerElement.addEventListener('click', onClick)
-    triggerElement.addEventListener('focus', onFocus)
-    triggerElement.addEventListener('blur', onBlur)
-    triggerElement.addEventListener('contextmenu', onContextMenu)
-    triggerElement.addEventListener('keydown', onKeydown)
+    triggerElement.addEventListener('mouseenter', handlers.mouseenter)
+    triggerElement.addEventListener('mouseleave', handlers.mouseleave)
+    triggerElement.addEventListener('click', handlers.click)
+    triggerElement.addEventListener('focus', handlers.focus)
+    triggerElement.addEventListener('blur', handlers.blur)
+    triggerElement.addEventListener('contextmenu', handlers.contextmenu)
+    triggerElement.addEventListener('keydown', handlers.keydown)
   })
 })
 
-// --------------------------
-// 核心修复：手动解绑事件
-// 这是泄漏彻底消失的关键
-// --------------------------
 onBeforeUnmount(() => {
+  // 1. 关闭 tooltip
   if (unref(open)) onClose()
 
+  // 2. 安全解绑事件
   if (triggerElement) {
-    triggerElement.removeEventListener('mouseenter', onMouseenter)
-    triggerElement.removeEventListener('mouseleave', onMouseleave)
-    triggerElement.removeEventListener('click', onClick)
-    triggerElement.removeEventListener('focus', onFocus)
-    triggerElement.removeEventListener('blur', onBlur)
-    triggerElement.removeEventListener('contextmenu', onContextMenu)
-    triggerElement.removeEventListener('keydown', onKeydown)
+    triggerElement.removeEventListener('mouseenter', handlers.mouseenter)
+    triggerElement.removeEventListener('mouseleave', handlers.mouseleave)
+    triggerElement.removeEventListener('click', handlers.click)
+    triggerElement.removeEventListener('focus', handlers.focus)
+    triggerElement.removeEventListener('blur', handlers.blur)
+    triggerElement.removeEventListener('contextmenu', handlers.contextmenu)
+    triggerElement.removeEventListener('keydown', handlers.keydown)
     triggerElement = null
   }
 
+  // 3. 清空引用
   triggerRef.value = null
 })
 
